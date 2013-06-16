@@ -6,9 +6,14 @@ reunions.txt
 
 *reunions* は非同期で外部プロセスを扱う為のプラグインです。
 
-Requirement:
+Requirement Vim:
 
-  context_filetype.vim - https://github.com/Shougo/vimproc.vim
+  |+reltime|
+
+
+Requirement Plugin:
+
+  vimproc.vim - https://github.com/Shougo/vimproc.vim
 
 
 ==============================================================================
