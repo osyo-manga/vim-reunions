@@ -59,11 +59,17 @@ function! reunions#process#make(command)
 		return vimproc.stdout.eof || vimproc.stderr.eof
 	endfunction
 
-	function! process.wait()
+	function! process.wait(...)
+		let timeout = get(a:, 1, 0.0)
+		let start_time = reltime()
 		while !self.is_exit()
+			if timeout > 0.0 && str2float(reltimestr(reltime(start_time))) > timeout
+				break
+			endif
 			call self.apply(get(self.__reunions.process, "taks_id", -1))
 		endwhile
 	endfunction
+
 	function! process.get()
 		call self.wait()
 		return self.__reunions.process.result

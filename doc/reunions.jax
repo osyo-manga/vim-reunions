@@ -98,6 +98,12 @@ then({result})					*reunions-process-apply()*
 	外部コマンドが終了した場合に呼び出される関数。
 	この関数はユーザ側で定義する。
 	{result} にはコマンドの出力結果が渡される。
+	この関数は 
+
+wait([{timeout}])				*reunions-process-wait()*
+	外部コマンドが終了するまで待ち処理を行う。
+	{timeout} には 秒数を |Float| で渡すことが出来る。
+	{timeout} が渡された場合、その秒数が経過した所で待ち処理が終了する。
 
 get()						*reunions-process-get()*
 	外部コマンドの出力結果を取得する。
