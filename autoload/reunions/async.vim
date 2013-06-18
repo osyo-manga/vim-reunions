@@ -2,6 +2,8 @@ scriptencoding utf-8
 let s:save_cpo = &cpo
 set cpo&vim
 
+let g:reunions_async_default_vimrc = get(g:, "g:reunions_async_default_vimrc", "NONE")
+
 function! s:to_slash_path(path)
 	return substitute(a:path, '\\', '/', 'g')
 endfunction
@@ -58,7 +60,8 @@ function! s:make_sourcefile(funcname, args)
 	let funcname = substitute(a:funcname, '<SNR>\d\+_', 's:', 'g')
 	call writefile(
 \		s:function(a:funcname)
-\	  + ["echo call(".string(funcname).", ".string(a:args).")"],
+\	  + ["let result = call(".string(funcname).", ".string(a:args).")"]
+\	  + ["echo type(result) == type('') ? string(result) : result"],
 \		temp
 \	)
 	return temp
@@ -69,9 +72,35 @@ endfunction
 function! s:make_from_funcname(funcname, ...)
 	let args = get(a:, 1, [])
 	let sourcefile = s:make_sourcefile(a:funcname, args)
-	let cmd = s:make_source_command(sourcefile, "NONE")
-" 	let cmd = s:make_source_command(sourcefile, "D:/home/Dropbox/work/vim/runtime/neobundle/vim-reunions/reunions_test/test/async/vimrc")
-	return reunions#process#make(cmd)
+	let cmd = s:make_source_command(sourcefile, g:reunions_async_default_vimrc)
+" 	return reunions#process#make(cmd)
+	let process = reunions#process#make(cmd)
+	let async = {
+\		"__reunions" : {
+\			"async" : {
+\				"process" : process,
+\			}
+\		}
+\	}
+	let process.__reunions.async  = async
+	function! process.then(result)
+		return self.__reunions.async.then(eval(a:result))
+	endfunction
+
+	function! async.apply(id)
+		return self.__reunions.async.process.apply(a:id)
+	endfunction
+
+	function! async.kill()
+		return self.__reunions.async.process.kill()
+	endfunction
+
+	function! async.wait(...)
+		let process = self.__reunions.async.process
+		return call(process.wait, a:000, process)
+	endfunction
+
+	return async
 endfunction
 
 

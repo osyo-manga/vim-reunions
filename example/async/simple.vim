@@ -21,4 +21,3 @@ function! s:async.then(result)
 	echo "result : " . a:result
 endfunction
 
-
