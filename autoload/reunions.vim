@@ -29,6 +29,13 @@ function! reunions#process(command)
 endfunction
 
 
+function! reunions#async(...)
+	let async = call("reunions#async#make", a:000)
+	call reunions#task#regist(async)
+	return async
+endfunction
+
+
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
