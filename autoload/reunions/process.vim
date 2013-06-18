@@ -34,13 +34,11 @@ function! reunions#process#make(command)
 			endif
 		catch
 			call self.kill()
-" 			call reunions#taskkill(a:id)
 		endtry
 		if has_key(self, "then")
 			call self.then(process.result)
 		endif
 		call self.kill()
-" 		call reunions#taskkill(a:id)
 	endfunction
 
 	function! process.kill()
