@@ -20,20 +20,24 @@ function! reunions#process#make(command)
 \			}
 \		}
 \	}
+	function! process.__reunions.process.update()
+		let vimproc = self.vimproc
+		if !vimproc.stdout.eof
+			let self.result .= vimproc.stdout.read()
+		endif
+
+		if !vimproc.stderr.eof
+			let self.result .= vimproc.stderr.read()
+		endif
+
+	endfunction
 
 	function! process.apply(id)
 		let self.__reunions.process.task_id = a:id
 		let process = self.__reunions.process
 		let vimproc = process.vimproc
 		try
-			if !vimproc.stdout.eof
-				let process.result .= vimproc.stdout.read()
-			endif
-
-			if !vimproc.stderr.eof
-				let process.result .= vimproc.stderr.read()
-			endif
-
+			call process.update()
 			if !self.is_exit()
 				return
 			endif
@@ -69,7 +73,7 @@ function! reunions#process#make(command)
 			if timeout > 0.0 && str2float(reltimestr(reltime(start_time))) > timeout
 				return g:reunions#process#status_timeout
 			endif
-			call self.apply(get(self.__reunions.process, "taks_id", -1))
+			call self.__reunions.process.update()
 		endwhile
 		return g:reunions#process#status_ready
 	endfunction
