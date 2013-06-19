@@ -99,6 +99,9 @@ process						*reunions-process*
 -----------------------------------------------------------------------------
 メンバー					*reunions-process-member*
 
+wait()						*reunions-process-wait()*
+	外部コマンドが終了するまで待ち処理を行います。
+
 wait_for({timeout})				*reunions-process-wait_for()*
 	外部コマンドが終了するまで待ち処理を行います。
 	{timeout} には 秒数を |Float| で渡すことが出来ます。
@@ -106,9 +109,6 @@ wait_for({timeout})				*reunions-process-wait_for()*
 
 	"g:reunions#process#status_ready"	: プロセスが終了
 	"g:reunions#process#status_timeout"	: タイムアウト
-
-wait()						*reunions-process-wait()*
-	外部コマンドが終了するまで待ち処理を行います。
 
 get()						*reunions-process-get()*
 	外部コマンドの出力結果を取得する。
