@@ -33,14 +33,14 @@ endfunction
 
 function! s:test_wait_for()
 	let process = reunions#process("ruby -e \" sleep 1; puts 'mami' \"")
-	if process.wait_for(0.5) == g:reunions#process#status_ready
-		OwlCheck 0
-	else
+	if process.wait_for(1.5) == g:reunions#process#status_ready
 		OwlCheck 1
+	else
+		OwlCheck 0
 	endif
 
 	let process2 = reunions#process("ruby -e \" sleep 1; puts 'homu' \"")
-	if process2.wait_for(1.5) == g:reunions#process#status_ready
+	if process2.wait_for(0.5) == g:reunions#process#status_timeout
 		OwlCheck 1
 	else
 		OwlCheck 0
