@@ -2,6 +2,11 @@ scriptencoding utf-8
 let s:save_cpo = &cpo
 set cpo&vim
 
+silent! let g:reunions#process#status_ready = 1
+lockvar! g:reunions#process#status_ready
+
+silent! let g:reunions#process#status_timeout = 2
+lockvar! g:reunions#process#status_timeout
 
 
 function! reunions#process#make(command)
@@ -57,16 +62,22 @@ function! reunions#process#make(command)
 		return vimproc.stdout.eof || vimproc.stderr.eof
 	endfunction
 
-	function! process.wait(...)
-		let timeout = get(a:, 1, 0.0)
+	function! process.wait_for(timeout)
+		let timeout = a:timeout
 		let start_time = reltime()
 		while !self.is_exit()
 			if timeout > 0.0 && str2float(reltimestr(reltime(start_time))) > timeout
-				break
+				return g:reunions#process#status_timeout
 			endif
 			call self.apply(get(self.__reunions.process, "taks_id", -1))
 		endwhile
+		return g:reunions#process#status_ready
 	endfunction
+
+	function! process.wait()
+		return self.wait_for(0)
+	endfunction
+
 
 	function! process.get()
 		call self.wait()
