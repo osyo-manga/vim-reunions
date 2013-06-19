@@ -28,23 +28,20 @@ Requirement Plugin:
 
 reunions#task({expr})				*reunions#task()*
 	|CursorHold| と |CursorholdI| 時に {expr} が呼ばれるように処理を追加
-	し、{id} を返す。
-	{expr} には以下の値を渡すことが出来る。
-	
-	'Funcref'	その関数を呼び出す
-	'Dictionary'	"apply" という名前の辞書関数を呼び出す。
+	し、{id} を返します。
+	詳しくは |reunions-task| を参照して下さい。
 
 reunions#task_timer({expr}, {time})		*reunions#task_timer()*
-	{time} ごとに処理を呼び出す以外は |reunions#task()| と同様である。
-	{time} には秒数を |Float| で渡すことが出来る。
+	{time} ごとに処理を呼び出す以外は |reunions#task()| と同様の処理です。
+	{time} には秒数を |Float| で渡すことが出来ます。
 	
 	NOTE:'updatetime' よりも小さい {time} が設定された場合は 'updatetime'
-	毎に処理が呼び出される。
-	短い間隔で処理を呼び出したい場合は 'updatetime' の値を小さく剃る必要が
-	ある。
+	毎に処理が呼び出されます。
+	短い間隔で処理を呼び出したい場合は 'updatetime' の値を小さく設定する必
+	要があります。
 
 reunions#taskkill({id})				*reunions#taskkill()*
-	|reunions#task()| で登録した {id} のタスクを終了させる。
+	|reunions#task()| で登録した {id} のタスクを終了させます。
 
 reunions#process({command})			*reunions#process()*
 	外部コマンド {command} をバックグランドで実行させる。
@@ -53,8 +50,8 @@ reunions#process({command})			*reunions#process()*
 ==============================================================================
 タスク						*reunions-task*
 
-|CursorHold| や |CursorHoldI| から呼び出されるタスクを設定する。
-タスクが呼ばれるタイミングは 'updatetime' に依存する。
+|CursorHold| や |CursorHoldI| から呼び出される処理を設定します。
+登録した処理が呼ばれるタイミングは 'updatetime' に依存します。
 
 
 ------------------------------------------------------------------------------
@@ -80,39 +77,49 @@ reunions#process({command})			*reunions#process()*
 
 -----------------------------------------------------------------------------
 メンバー					*reunions-task-member*
-タスクには以下のような関数を定義する事が出来る
+
+|reunions#task()| には以下の辞書関数を保持した辞書を渡すことが出来ます。
 
 apply({id})					*reunions-task-member-apply()*
-	|CursorHold| と |CursorHoldI| から毎回呼ばれる関数。
-	この関数内でタスクを削除したい場合は {id} を使用する。
+	(Required)
+	|CursorHold| と |CursorHoldI| から毎回呼ばれる関数です。
+	この関数内でタスクを削除したい場合は {id} を使用します。
 
 kill({id})					*reunions-task-member-kill()*
-	タスクが終了した時に呼ばれる関数。
-	終了処理などを行いたい場合はこの関数を定義する。
+	タスクが終了した時に呼ばれる関数です。
+	タスクの終了時に処理をフックしたい場合はこの関数を定義します。
 
 
 ==============================================================================
 process						*reunions-process*
 
 外部コマンドを非同期で処理します。
+|reunions#process()| の戻り値は辞書を返し、下記の関数を持ちます。
 
 -----------------------------------------------------------------------------
 メンバー					*reunions-process-member*
 
-then({result})					*reunions-process-apply()*
-	外部コマンドが終了した場合に呼び出される関数。
-	この関数はユーザ側で定義する。
-	{result} にはコマンドの出力結果が渡される。
-	この関数は 
+wait_for({timeout})				*reunions-process-wait_for()*
+	外部コマンドが終了するまで待ち処理を行います。
+	{timeout} には 秒数を |Float| で渡すことが出来ます。
+	この関数は以下の戻り値を返します。
 
-wait([{timeout}])				*reunions-process-wait()*
-	外部コマンドが終了するまで待ち処理を行う。
-	{timeout} には 秒数を |Float| で渡すことが出来る。
-	{timeout} が渡された場合、その秒数が経過した所で待ち処理が終了する。
+	"g:reunions#process#status_ready"	: プロセスが終了
+	"g:reunions#process#status_timeout"	: タイムアウト
+
+wait()						*reunions-process-wait()*
+	外部コマンドが終了するまで待ち処理を行います。
 
 get()						*reunions-process-get()*
 	外部コマンドの出力結果を取得する。
-	この関数は外部コマンドの実行が終了するまで待ち処理が行われる。
+	この関数は外部コマンドの実行が終了するまで待ち処理が行われます。
+
+then({result})					*reunions-process-apply()*
+	外部コマンドが終了した場合に呼び出される関数です。
+	この関数はユーザ側で定義します。
+	この関数が呼び出されるタイミングは |reunions-task-member-apply()| 時に
+	なります。
+	{result} にはコマンドの出力結果が渡されます。
 
 ==============================================================================
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
