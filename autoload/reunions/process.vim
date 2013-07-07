@@ -30,8 +30,7 @@ function! s:process.__reunions.process.update()
 endfunction
 
 
-function! s:process.apply(id)
-	let self.__reunions.process.task_id = a:id
+function! s:process.apply()
 	let process = self.__reunions.process
 	let vimproc = process.vimproc
 	try
@@ -55,16 +54,18 @@ function! s:process.kill()
 	call vimproc.stderr.close()
 	call vimproc.waitpid()
 	call vimproc.kill(19)
-	if has_key(self.__reunions.process, "task_id")
-		call reunions#taskkill(self.__reunions.process.task_id)
-	endif
 endfunction
+
 
 function! s:process.is_exit()
 	let vimproc = self.__reunions.process.vimproc
 	return vimproc.stdout.eof || vimproc.stderr.eof
 endfunction
 
+
+function! s:process.log()
+	return self.__reunions.process.result
+endfunction
 
 function! s:process.wait_for(timeout)
 	let timeout = a:timeout
@@ -90,7 +91,6 @@ function! s:process.get()
 endfunction
 
 
-
 function! reunions#process#make(command)
 	let vimproc = vimproc#pgroup_open(a:command)
 
@@ -101,6 +101,27 @@ function! reunions#process#make(command)
 
 	return process
 endfunction
+
+
+function! reunions#process#regist_task(process)
+	let task = {
+\		"__reunions" : {
+\			"process" : a:process
+\		}
+\	}
+	function! task.apply(id)
+		call self.__reunions.process.apply()
+		if self.__reunions.process.is_exit()
+			call reunions#taskkill(a:id)
+		endif
+	endfunction
+	function! task.kill()
+		call process.kill()
+	endfunction
+	call reunions#task(task)
+	return task
+endfunction
+
 
 
 let &cpo = s:save_cpo

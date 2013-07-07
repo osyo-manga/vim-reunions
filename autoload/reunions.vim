@@ -24,7 +24,7 @@ endfunction
 
 function! reunions#process(command)
 	let process = reunions#process#make(a:command)
-	call reunions#task#regist(process)
+	call reunions#process#regist_task(process)
 	return process
 endfunction
 

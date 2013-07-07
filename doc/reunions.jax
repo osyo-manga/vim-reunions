@@ -1,4 +1,4 @@
-reunions.txt
+reunions.txt		Vim で非同期処理
 
 
 ==============================================================================
@@ -46,9 +46,12 @@ reunions#taskkill({id})				*reunions#taskkill()*
 reunions#process({command})			*reunions#process()*
 	外部コマンド {command} をバックグランドで実行させる。
 
+reunions#process({function})			*reunions#async()*
+	{function} を外部の Vim で非同期で処理します。
+
 
 ==============================================================================
-タスク						*reunions-task*
+task						*reunions-task*
 
 |CursorHold| や |CursorHoldI| から呼び出される処理を設定します。
 登録した処理が呼ばれるタイミングは 'updatetime' に依存します。
@@ -120,6 +123,22 @@ then({result})					*reunions-process-apply()*
 	この関数が呼び出されるタイミングは |reunions-task-member-apply()| 時に
 	なります。
 	{result} にはコマンドの出力結果が渡されます。
+
+log()						*reunions-process-log()*
+	コマンドが開始してから出力された値を返します。
+
+
+==============================================================================
+async						*reunions-async*
+
+Vim script のコードを外部の Vim で処理することで非同期で処理します。
+
+-----------------------------------------------------------------------------
+メンバー					*reunions-async-member*
+
+|reunions-process-member| が使用出来ます。
+
+
 
 ==============================================================================
 vim:tw=78:fo=tcq2mM:ts=8:ft=help:norl
