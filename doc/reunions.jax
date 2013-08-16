@@ -43,6 +43,9 @@ reunions#task_timer({expr}, {time})		*reunions#task_timer()*
 reunions#taskkill({id})				*reunions#taskkill()*
 	|reunions#task()| で登録した {id} のタスクを終了させます。
 
+reunions#task_logs()				*reunions#task_logs()*
+	タスク処理で発生したエラー内容を文字列で返す。
+
 reunions#process({command})			*reunions#process()*
 	外部コマンド {command} をバックグランドで実行させる。
 

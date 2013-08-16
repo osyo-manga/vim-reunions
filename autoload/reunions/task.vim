@@ -16,6 +16,22 @@ function! s:sfunction(name)
 endfunction
 
 
+let s:logs = ""
+function! s:log_message_except(id, str)
+	let s:logs = s:logs
+\		. printf("======= task_id : %d =======\n", a:id)
+\		. a:str . "\n"
+\		. 'Caught "' . v:exception "\n"
+\		. '" in ' . v:throwpoint . "\n"
+\		. "\n"
+endfunction
+
+
+function! reunions#task#logs()
+	return s:logs
+endfunction
+
+
 if !exists("s:tasks")
 	let s:tasks = {}
 endif
@@ -74,7 +90,11 @@ endfunction
 
 function! reunions#task#update_all()
 	for [id, task] in items(reunions#task#list())
-		call task.apply(id)
+		try
+			call task.apply(id)
+		catch
+			call s:log_message_except(id, "Except task update")
+		endtry
 	endfor
 endfunction
 

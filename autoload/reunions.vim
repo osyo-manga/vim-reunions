@@ -21,6 +21,10 @@ function! reunions#task_timer(expr, time)
 	return reunions#task#regist(reunions#task#make_timer(a:expr, a:time))
 endfunction
 
+function! reunions#task_logs()
+	return reunions#task#logs()
+endfunction
+
 
 function! reunions#process(command)
 	let process = reunions#process#make(a:command)
