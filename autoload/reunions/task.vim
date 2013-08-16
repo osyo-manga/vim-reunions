@@ -19,11 +19,15 @@ endfunction
 let s:logs = ""
 function! s:log_message_except(id, str)
 	let s:logs = s:logs
-\		. printf("======= task_id : %d =======\n", a:id)
+\		. printf("\n\n======= task_id : %d =======\n", a:id)
 \		. a:str . "\n"
 \		. 'Caught "' . v:exception "\n"
-\		. '" in ' . v:throwpoint . "\n"
-\		. "\n"
+\		. '" in ' . v:throwpoint . ""
+endfunction
+
+
+function! reunions#task#clear_logs()
+	let s:logs = ""
 endfunction
 
 
@@ -55,6 +59,7 @@ endfunction
 function! s:timer_task(...)
 	let s:reltime = reltime()
 	let s:reltimef = str2float(reltimestr(reltime()))
+" 	echo s:reltimef
 endfunction
 
 
@@ -67,19 +72,50 @@ function! reunions#task#make_timer(task, time)
 \			"task_timer" : {
 \				"base_task" : reunions#task#make_default(a:task),
 \				"interval_time" : a:time,
-\				"last_time" : 0,
+\				"last_time" : s:reltimef,
 \			}
 \		}
 \	}
 	function! task.apply(id)
 		let task = self.__reunions.task_timer
-		if s:reltimef - task.last_time > task.interval_time
-			call task.base_task.apply(a:id)
-			let self.__reunions.task_timer.last_time = s:reltimef
+" 		echo "time : ". string(s:reltimef) ." - ". string(self.__reunions.task_timer.last_time) . " = ". string(s:reltimef - self.__reunions.task_timer.last_time)
+		if (s:reltimef - task.last_time) > task.interval_time
+			try
+				call task.base_task.apply(a:id)
+			finally
+				let task.last_time = s:reltimef
+			endtry
 		endif
 	endfunction
+	
+	function! task.kill()
+		call self.__reunions.task_timer.base_task.kill()
+	endfunction
+
 	return task
 endfunction
+
+
+function! reunions#task#make_once(task)
+	let task =  {
+\		"__reunions" : {
+\			"task_once" : {
+\				"base_task" : reunions#task#make_default(a:task)
+\			}
+\		}
+\	}
+	function! task.apply(id)
+		call self.__reunions.task_once.base_task.apply(a:id)
+		return reunions#taskkill(a:id)
+	endfunction
+
+	function! task.kill()
+		call self.__reunions.task_once.base_task.kill()
+	endfunction
+
+	return task
+endfunction
+
 
 function! reunions#task#regist(task)
 	let id = s:make_id()

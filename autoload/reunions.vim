@@ -17,14 +17,30 @@ function! reunions#task(expr)
 	return reunions#task#regist(reunions#task#make_default(a:expr))
 endfunction
 
+
+function! reunions#task_once(expr)
+	return reunions#task#regist(reunions#task#make_once(a:expr))
+endfunction
+
+
 function! reunions#task_timer(expr, time)
 	return reunions#task#regist(reunions#task#make_timer(a:expr, a:time))
 endfunction
+
+
+function! reunions#task_timer_once(expr, time)
+	return reunions#task#regist(reunions#task#make_timer(reunions#task#make_once(a:expr), a:time))
+endfunction
+
 
 function! reunions#task_logs()
 	return reunions#task#logs()
 endfunction
 
+
+function! reunions#task_clear_logs()
+	call reunions#task#clear_logs()
+endfunction
 
 function! reunions#process(command)
 	let process = reunions#process#make(a:command)
