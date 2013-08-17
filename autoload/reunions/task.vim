@@ -65,9 +65,9 @@ endfunction
 
 
 function! reunions#task#make_timer(task, time)
-	if !exists("s:task_timer_id") || !reunions#task#exist(s:task_timer_id)
-		let s:task_timer_id = reunions#task(s:sfunction("timer_task"))
-	endif
+" 	if !exists("s:task_timer_id") || !reunions#task#exist(s:task_timer_id)
+" 		let s:task_timer_id = reunions#task(s:sfunction("timer_task"))
+" 	endif
 	let task = {
 \		"__reunions" : {
 \			"task_timer" : {
@@ -177,8 +177,9 @@ endfunction
 
 augroup reunions-task
 	autocmd!
+	autocmd CursorHold * call s:timer_task()
 	autocmd CursorHold  * call reunions#task#update_all()  | call feedkeys("g\<ESC>", 'n')
-" 	autocmd CursorHoldI  * call reunions#task#update_all() | call feedkeys("\<C-g>\<ESC>", 'n')
+	autocmd CursorHoldI  * call reunions#task#update_all() | call feedkeys("\<C-g>\<ESC>", 'n')
 	autocmd VimLeave  * call reunions#task#kill_all()
 augroup END
 
