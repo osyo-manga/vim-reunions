@@ -177,7 +177,7 @@ endfunction
 augroup reunions-task
 	autocmd!
 	autocmd CursorHold  * call reunions#task#update_all()  | call feedkeys("g\<ESC>", 'n')
-	autocmd CursorHoldI  * call reunions#task#update_all() | call feedkeys("\<C-g>\<ESC>", 'n')
+" 	autocmd CursorHoldI  * call reunions#task#update_all() | call feedkeys("\<C-g>\<ESC>", 'n')
 	autocmd VimLeave  * call reunions#task#kill_all()
 augroup END
 
