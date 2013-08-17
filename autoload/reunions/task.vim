@@ -56,6 +56,7 @@ function! reunions#task#make_default(task)
 endfunction
 
 
+let s:reltimef = 0
 function! s:timer_task(...)
 	let s:reltime = reltime()
 	let s:reltimef = str2float(reltimestr(reltime()))

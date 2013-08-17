@@ -31,7 +31,7 @@ reunions#task({expr})				*reunions#task()*
 	し、{id} を返します。
 	詳しくは |reunions-task| を参照して下さい。
 
-reunions#task({expr})				*reunions#task()*
+reunions#task_once({expr})			*reunions#task_once()*
 	|reunions#task()| と同じですが、{expr} が1度しか呼ばれません。
 
 reunions#task_timer({expr}, {time})		*reunions#task_timer()*
@@ -43,7 +43,7 @@ reunions#task_timer({expr}, {time})		*reunions#task_timer()*
 	短い間隔で処理を呼び出したい場合は 'updatetime' の値を小さく設定する必
 	要があります。
 
-reunions#task_timer({expr}, {time})		*reunions#task_timer()*
+reunions#task_timer_once({expr}, {time})	*reunions#task_timer_once()*
 	|reunions#task_timer()| と同じですが、{expr} が1度しか呼ばれません。
 
 reunions#taskkill({id})				*reunions#taskkill()*
