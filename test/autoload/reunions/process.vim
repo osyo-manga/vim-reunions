@@ -1,6 +1,8 @@
 
 
 function! s:test_get()
+	call reunions#task_clear_logs()
+
 	let process1 = reunions#process('ruby -e "print 1"')
 	let process2 = reunions#process('ruby -e "print ''mami''"')
 	let process3 = reunions#process('ruby -e "puts ''mami''"')
@@ -21,6 +23,8 @@ function! s:test_get()
 
 	let check7 = "process.vim\ntask.vim\n"
 	OwlCheck process7.get() == check7
+
+	OwlCheck reunions#task_logs() == ""
 endfunction
 
 
@@ -57,7 +61,7 @@ endfunction
 
 
 function! s:test_kill()
-	let process = reunions#process('ls')
+	let process = reunions#process('cmd')
 	call process.kill()
 	OwlCheck process.is_exit()
 endfunction

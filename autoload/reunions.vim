@@ -42,6 +42,12 @@ function! reunions#task_clear_logs()
 	call reunions#task#clear_logs()
 endfunction
 
+
+function! reunions#task_group()
+	return reunions#task#make_group()
+endfunction
+
+
 function! reunions#process(command)
 	let process = reunions#process#make(a:command)
 	call reunions#process#regist_task(process)

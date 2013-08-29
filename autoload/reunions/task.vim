@@ -16,23 +16,123 @@ function! s:sfunction(name)
 endfunction
 
 
-let s:logs = ""
-function! s:log_message_except(id, str)
-	let s:logs = s:logs
-\		. printf("\n\n======= task_id : %d =======\n", a:id)
-\		. a:str . "\n"
-\		. 'Caught "' . v:exception "\n"
-\		. '" in ' . v:throwpoint . ""
+function! s:task_group()
+	let self = {
+\		"tasks" : {},
+\		"id_count" : 0,
+\		"log" : ""
+\	}
+
+	function! self.logs()
+		return self.log
+	endfunction
+
+
+	function! self.clear_logs()
+		let self.log = ""
+	endfunction
+
+	function! self.add_log(id, mes)
+		let self.log = self.log
+	\		. printf("\n\n======= task_id : %d =======\n", a:id)
+	\		. a:mes . "\n"
+	\		. 'Caught "' . v:exception "\n"
+	\		. '" in ' . v:throwpoint . ""
+	endfunction
+	
+	function! self.make_id()
+		let self.id_count += 1
+		return self.id_count
+	endfunction
+
+	function! self.add(task)
+		let id = self.make_id()
+		let self.tasks[id] = a:task
+		return id
+	endfunction
+
+	function! self.get(id)
+		return self.tasks[a:id]
+	endfunction
+
+	function! self.update(id)
+		if !self.has_id(a:id)
+			return
+		endif
+		try
+			if self.get(a:id).apply() != 0
+				call self.kill_id(a:id)
+			endif
+		catch
+			call self.add_log(a:id, "Except task update")
+			call self.kill_id(a:id)
+		endtry
+	endfunction
+
+	function! self.update_all()
+		for id in keys(self.tasks)
+			call self.update(id)
+		endfor
+	endfunction
+
+
+	function! self.kill_id(id)
+		if !self.has_id(a:id)
+			return -1
+		endif
+		let task = self.get(a:id)
+		unlet self.tasks[a:id]
+		
+		if has_key(task, "kill")
+			try
+				call task.kill()
+			catch
+				call self.add_log(a:id, "Except task kill")
+			endtry
+		endif
+	endfunction
+
+	function! self.kill_all()
+		for id in keys(self.tasks)
+			call self.kill_id(id)
+		endfor
+		let self.tasks = {}
+	endfunction
+
+	function! self.has_id(id)
+		return has_key(self.tasks, a:id)
+	endfunction
+
+	function! self.size()
+		return len(self.tasks)
+	endfunction
+
+	return self
+endfunction
+
+function! reunions#task#make_group()
+	return s:task_group()
 endfunction
 
 
+" let s:logs = ""
+" function! s:log_message_except(id, str)
+" 	let s:logs = s:logs
+" \		. printf("\n\n======= task_id : %d =======\n", a:id)
+" \		. a:str . "\n"
+" \		. 'Caught "' . v:exception "\n"
+" \		. '" in ' . v:throwpoint . ""
+" endfunction
+
+
 function! reunions#task#clear_logs()
-	let s:logs = ""
+" 	let s:logs = ""
+	call s:global_tasks.clear_logs()
 endfunction
 
 
 function! reunions#task#logs()
-	return s:logs
+	return s:global_tasks.logs()
 endfunction
 
 
@@ -65,9 +165,6 @@ endfunction
 
 
 function! reunions#task#make_timer(task, time)
-" 	if !exists("s:task_timer_id") || !reunions#task#exist(s:task_timer_id)
-" 		let s:task_timer_id = reunions#task(s:sfunction("timer_task"))
-" 	endif
 	let task = {
 \		"__reunions" : {
 \			"task_timer" : {
@@ -77,12 +174,11 @@ function! reunions#task#make_timer(task, time)
 \			}
 \		}
 \	}
-	function! task.apply(id)
+	function! task.apply()
 		let task = self.__reunions.task_timer
-" 		echo "time : ". string(s:reltimef) ." - ". string(self.__reunions.task_timer.last_time) . " = ". string(s:reltimef - self.__reunions.task_timer.last_time)
 		if (s:reltimef - task.last_time) > task.interval_time
 			try
-				call task.base_task.apply(a:id)
+				call task.base_task.apply()
 			finally
 				let task.last_time = s:reltimef
 			endtry
@@ -105,9 +201,9 @@ function! reunions#task#make_once(task)
 \			}
 \		}
 \	}
-	function! task.apply(id)
-		call self.__reunions.task_once.base_task.apply(a:id)
-		return reunions#taskkill(a:id)
+	function! task.apply()
+		call self.__reunions.task_once.base_task.apply()
+		return -1
 	endfunction
 
 	function! task.kill()
@@ -118,43 +214,51 @@ function! reunions#task#make_once(task)
 endfunction
 
 
+
+if !exists("s:global_tasks") || 0
+	let s:global_tasks = reunions#task#make_group()
+endif
+
+
+
 function! reunions#task#regist(task)
-	let id = s:make_id()
-	let s:tasks[id] = a:task
-	return id
+	return s:global_tasks.add(a:task)
 endfunction
 
 
 function! reunions#task#update_all()
-	for [id, task] in items(reunions#task#list())
-		try
-			call task.apply(id)
-		catch
-			call s:log_message_except(id, "Except task update")
-		endtry
-	endfor
+	return s:global_tasks.update_all()
+" 	for [id, task] in items(reunions#task#list())
+" 		try
+" 			call task.apply(id)
+" 		catch
+" 			call s:log_message_except(id, "Except task update")
+" 		endtry
+" 	endfor
 endfunction
 
 
-function! reunions#task#kill(task_id)
-	if has_key(s:tasks, a:task_id)
-		let task = s:tasks[a:task_id]
-		unlet s:tasks[a:task_id]
-		if has_key(task, "kill")
-			try
-				call task.kill()
-			catch
-			endtry
-		endif
-		return 0
-	else
-		return -1
-	endif
+function! reunions#task#kill(id)
+	return s:global_tasks.kill_id(a:id)
+" 	if has_key(s:tasks, a:task_id)
+" 		let task = s:tasks[a:task_id]
+" 		unlet s:tasks[a:task_id]
+" 		if has_key(task, "kill")
+" 			try
+" 				call task.kill()
+" 			catch
+" 			endtry
+" 		endif
+" 		return 0
+" 	else
+" 		return -1
+" 	endif
 endfunction
 
 
-function! reunions#task#get(task_id)
-	return s:tasks[a:task_id]
+function! reunions#task#get(id)
+	return s:global_tasks.get(a:id)
+" 	return s:tasks[a:task_id]
 endfunction
 
 
@@ -167,11 +271,11 @@ endfunction
 
 
 function! reunions#task#list()
-	return s:tasks
+	return s:global_tasks.tasks
 endfunction
 
 function! reunions#task#exist(id)
-	return has_key(reunions#task#list(), a:id)
+	return s:global_tasks.has_id(a:id)
 endfunction
 
 

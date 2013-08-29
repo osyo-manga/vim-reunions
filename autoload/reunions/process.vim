@@ -41,9 +41,11 @@ function! s:process.apply()
 	catch
 		call self.kill()
 	endtry
+
 	if has_key(self, "then")
 		call self.then(process.result)
 	endif
+
 	call self.kill()
 endfunction
 
@@ -53,7 +55,6 @@ function! s:process.kill()
 	call vimproc.stdout.close()
 	call vimproc.stderr.close()
 	call vimproc.waitpid()
-	call vimproc.kill(19)
 endfunction
 
 
@@ -103,21 +104,27 @@ function! reunions#process#make(command)
 endfunction
 
 
-function! reunions#process#regist_task(process)
+function! reunions#process#make_task(process)
 	let task = {
 \		"__reunions" : {
 \			"process" : a:process
 \		}
 \	}
-	function! task.apply(id)
+	function! task.apply()
 		call self.__reunions.process.apply()
 		if self.__reunions.process.is_exit()
-			call reunions#taskkill(a:id)
+			return -1
 		endif
 	endfunction
 	function! task.kill()
-		call process.kill()
+		call self.__reunions.process.kill()
 	endfunction
+	return task
+endfunction
+
+
+function! reunions#process#regist_task(process)
+	let task = reunions#process#make_task(a:process)
 	call reunions#task(task)
 	return task
 endfunction
