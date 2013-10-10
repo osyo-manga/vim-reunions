@@ -33,6 +33,9 @@ endfunction
 function! s:process.apply()
 	let process = self.__reunions.process
 	let vimproc = process.vimproc
+	if self.is_exit()
+		return
+	endif
 	try
 		call process.update()
 		if !self.is_exit()
@@ -41,7 +44,6 @@ function! s:process.apply()
 	catch
 		call self.kill()
 	endtry
-
 	if has_key(self, "then")
 		call self.then(process.result)
 	endif
@@ -51,9 +53,11 @@ endfunction
 
 
 function! s:process.kill()
+	let self.__reunions.process.result = ""
 	let vimproc = self.__reunions.process.vimproc
 	call vimproc.stdout.close()
 	call vimproc.stderr.close()
+	call vimproc.kill(9)
 	call vimproc.waitpid()
 endfunction
 
@@ -75,7 +79,8 @@ function! s:process.wait_for(timeout)
 		if timeout > 0.0 && str2float(reltimestr(reltime(start_time))) > timeout
 			return g:reunions#process#status_timeout
 		endif
-		call self.__reunions.process.update()
+		call self.apply()
+" 		call self.__reunions.process.update()
 	endwhile
 	return g:reunions#process#status_ready
 endfunction
@@ -129,6 +134,35 @@ function! reunions#process#regist_task(process)
 	return task
 endfunction
 
+
+
+let s:group = {
+\	"task_group" : reunions#task_group()
+\}
+
+
+function! s:group.make_process(command)
+	let process = reunions#process#make(a:command)
+	call self.task_group.add(reunions#process#make_task(process))
+	return process
+endfunction
+
+
+function! s:group.apply()
+	return self.task_group.apply()
+endfunction
+
+
+function! s:group.wait_all()
+	while self.task_group.size()
+		call self.task_group.update_all()
+	endwhile
+endfunction
+
+
+function! reunions#process#make_group()
+	return deepcopy(s:group)
+endfunction
 
 
 let &cpo = s:save_cpo

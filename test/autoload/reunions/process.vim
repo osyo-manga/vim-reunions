@@ -66,3 +66,18 @@ function! s:test_kill()
 	OwlCheck process.is_exit()
 endfunction
 
+
+function! s:test_group()
+	let group = reunions#process_group()
+	for i in [3, 5, 0, 1, 8, 2, 7, 4, 6, 9]
+		let process = group.make_process(printf("ruby -e \" sleep %s; puts %d \"", i, i))
+		function! process.then(output)
+			echo "homu" . a:output
+		endfunction
+	endfor
+
+	call group.wait_all()
+" 	call reunions#task(group)
+" 	echo len(reunions#tasklist())
+endfunction
+

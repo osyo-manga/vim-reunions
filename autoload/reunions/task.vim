@@ -75,6 +75,13 @@ function! s:task_group()
 		endfor
 	endfunction
 
+	function! self.apply()
+		call self.update_all()
+		if self.size() == 0
+			return -1
+		endif
+	endfunction
+
 
 	function! self.kill_id(id)
 		if !self.has_id(a:id)
@@ -282,8 +289,8 @@ endfunction
 augroup reunions-task
 	autocmd!
 	autocmd CursorHold * call s:timer_task()
-	autocmd CursorHold  * call reunions#task#update_all()  | call feedkeys("g\<ESC>", 'n')
-	autocmd CursorHoldI  * call reunions#task#update_all() | call feedkeys("\<C-g>\<ESC>", 'n')
+	autocmd CursorHold  * call feedkeys("g\<ESC>", 'n') | call reunions#task#update_all()
+	autocmd CursorHoldI  * call feedkeys("\<C-g>\<ESC>", 'n') |  call reunions#task#update_all()
 	autocmd VimLeave  * call reunions#task#kill_all()
 augroup END
 

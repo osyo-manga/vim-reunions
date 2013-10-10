@@ -58,6 +58,28 @@ reunions#process({command})			*reunions#process()*
 reunions#process({function})			*reunions#async()*
 	{function} を外部の Vim で非同期で処理します。
 
+------------------------------------------------------------------------------
+autocmd						*reunions-autocmd*
+
+ReunionsTimer{interval}				*ReunionsTimer*
+	{interval} の時間毎に |autocmd| ReunionsTimer{interval} が |User| と
+	して呼ばれます。
+	一定時間ごとに処理を行いたい場合はこの |autocmd| を使用することができ
+	ます。
+	{interval} はミリ秒で以下の数値が使用できます。
+
+	"500"
+	"1000"
+	"2000"
+	"4000"
+	"6000"
+	"8000"
+	"10000"
+
+	また、この |autocmd| が呼ばれるタイミングは 'updatetime' の値に依存し
+	ます。
+	'updatetime' が {interval} よりも大きければその時間に正しく呼ばれると
+	は限りません。
 
 ==============================================================================
 task						*reunions-task*
@@ -78,7 +100,7 @@ task						*reunions-task*
 	\}
 
 	" 呼び出される関数
-	function! task.apply(id)
+	function! task.apply()
 		echo self.count
 		let self.count += 1
 	endfunction
@@ -92,12 +114,12 @@ task						*reunions-task*
 
 |reunions#task()| には以下の辞書関数を保持した辞書を渡すことが出来ます。
 
-apply({id})					*reunions-task-member-apply()*
+apply()						*reunions-task-member-apply()*
 	(Required)
 	|CursorHold| と |CursorHoldI| から毎回呼ばれる関数です。
-	この関数内でタスクを削除したい場合は {id} を使用します。
+	この関数が 0 以外の数値を返した場合、タスクから削除されます。
 
-kill({id})					*reunions-task-member-kill()*
+kill()						*reunions-task-member-kill()*
 	タスクが終了した時に呼ばれる関数です。
 	タスクの終了時に処理をフックしたい場合はこの関数を定義します。
 

@@ -55,6 +55,11 @@ function! reunions#process(command)
 endfunction
 
 
+function! reunions#process_group()
+	return reunions#process#make_group()
+endfunction
+
+
 function! reunions#async(...)
 	let async = call("reunions#async#make", a:000)
 	call reunions#task#regist(async)
