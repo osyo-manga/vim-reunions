@@ -87,11 +87,12 @@ function! s:make_from_funcname(funcname, ...)
 		return self.__reunions.async.then(eval(a:result))
 	endfunction
 
-	function! async.apply(id)
-		return self.__reunions.async.process.apply(a:id)
+	function! async.apply()
+		return self.__reunions.async.process.apply()
 	endfunction
 
 	function! async.kill()
+		PP self.__reunions
 		return self.__reunions.async.process.kill()
 	endfunction
 
